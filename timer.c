@@ -11,9 +11,11 @@
 
 */
 
+
 /**
- * 2019-AUG-31, xiaolaba, port to uses SDCC 3.8.0
+ * 2019-AUG-31, xiaolaba, port to uses SDCC 3.8.0 & 3.9.0
  * firmware are provided for 68HC908QT2 and 68HC908QT4
+ * job done
  */
  
 
