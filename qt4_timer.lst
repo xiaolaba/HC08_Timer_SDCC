@@ -1,0 +1,619 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : free open source ANSI-C Compiler
+                              3 ; Version 3.8.0 #10562 (MINGW64)
+                              4 ;--------------------------------------------------------
+                              5 	.module timer
+                              6 	.optsdcc -mhc08
+                              7 	
+                              8 	.area HOME    (CODE)
+                              9 	.area GSINIT0 (CODE)
+                             10 	.area GSINIT  (CODE)
+                             11 	.area GSFINAL (CODE)
+                             12 	.area CSEG    (CODE)
+                             13 	.area XINIT   (CODE)
+                             14 	.area CONST   (CODE)
+                             15 	.area DSEG    (PAG)
+                             16 	.area OSEG    (PAG, OVR)
+                             17 	.area XSEG
+                             18 	.area XISEG
+                             19 	.area	CODEIVT (ABS)
+   FFFE                      20 	.org	0xfffe
+   FFFEr00r00                21 	.dw	__sdcc_gs_init_startup
+                             22 
+                             23 	.area GSINIT0
+   0000                      24 __sdcc_gs_init_startup:
+   0000 45 01 00      [ 3]   25 	ldhx	#0x0100
+   0003 94            [ 2]   26 	txs
+   0004 CDr00r00      [ 5]   27 	jsr	__sdcc_external_startup
+   0007 27 03         [ 3]   28 	beq	__sdcc_init_data
+   0009 CCr00r00      [ 3]   29 	jmp	__sdcc_program_startup
+   000C                      30 __sdcc_init_data:
+                             31 ; _hc08_genXINIT() start
+   000C 45 00 00      [ 3]   32         ldhx #0
+   000F                      33 00001$:
+   000F 65r00r00      [ 3]   34         cphx #l_XINIT
+   0012 27 0A         [ 3]   35         beq  00002$
+   0014 D6r00r00      [ 4]   36         lda  s_XINIT,x
+   0017 D7r00r00      [ 4]   37         sta  s_XISEG,x
+   001A AF 01         [ 2]   38         aix  #1
+   001C 20 F1         [ 3]   39         bra  00001$
+   001E                      40 00002$:
+                             41 ; _hc08_genXINIT() end
+                             42 	.area GSFINAL
+   0000 CCr00r00      [ 3]   43 	jmp	__sdcc_program_startup
+                             44 
+                             45 	.area CSEG
+   0000                      46 __sdcc_program_startup:
+   0000 CDr01r84      [ 5]   47 	jsr	_main
+   0003 20 FE         [ 3]   48 	bra	.
+                             49 ;--------------------------------------------------------
+                             50 ; Public variables in this module
+                             51 ;--------------------------------------------------------
+                             52 	.globl _main
+                             53 	.globl _task_led
+                             54 	.globl _write_time
+                             55 	.globl _read_time_dial
+                             56 	.globl _read_ADC_filter
+                             57 	.globl _read_ADC
+                             58 	.globl _run_timer
+                             59 	.globl _minute_clock
+                             60 	.globl _disable_timer
+                             61 	.globl _minute_pass
+                             62 	.globl _x3
+                             63 	.globl _x2
+                             64 	.globl _x1
+                             65 	.globl _set_time
+                             66 	.globl _save_time
+                             67 	.globl _PV
+                             68 	.globl _min
+                             69 	.globl _sec
+                             70 	.globl _timer3
+                             71 	.globl _timer2
+                             72 	.globl _timer1
+                             73 	.globl _n
+                             74 	.globl _count
+                             75 	.globl _COPCTL
+                             76 	.globl _OSCTRIMVAL
+                             77 	.globl _FLBPR
+                             78 	.globl _LVISR
+                             79 	.globl _BRKSCR
+                             80 	.globl _BRK
+                             81 	.globl _BRKL
+                             82 	.globl _BRKH
+                             83 	.globl _FLCR
+                             84 	.globl _INT3
+                             85 	.globl _INT2
+                             86 	.globl _INT1
+                             87 	.globl _BFCF
+                             88 	.globl _BRKAR
+                             89 	.globl _SRSR
+                             90 	.globl _BSR
+                             91 	.globl _ADICLK
+                             92 	.globl _ADR
+                             93 	.globl _ADSCR
+                             94 	.globl _OSCTRIM
+                             95 	.globl _OSCSTAT
+                             96 	.globl _TCH1
+                             97 	.globl _TCH1L
+                             98 	.globl _TCH1H
+                             99 	.globl _TSC1
+                            100 	.globl _TCH0
+                            101 	.globl _TCH0L
+                            102 	.globl _TCH0H
+                            103 	.globl _TSC0
+                            104 	.globl _TMOD
+                            105 	.globl _TMODL
+                            106 	.globl _TMODH
+                            107 	.globl _TCNT
+                            108 	.globl _TCNTL
+                            109 	.globl _TCNTH
+                            110 	.globl _TSC
+                            111 	.globl _CONFIG1
+                            112 	.globl _CONFIG2
+                            113 	.globl _INTSCR
+                            114 	.globl _KBIER
+                            115 	.globl _KBSCR
+                            116 	.globl _PTBPUE
+                            117 	.globl _PTAPUE
+                            118 	.globl _DDRB
+                            119 	.globl _DDRA
+                            120 	.globl _PTB
+                            121 	.globl _PTA
+                            122 ;--------------------------------------------------------
+                            123 ; ram data
+                            124 ;--------------------------------------------------------
+                            125 	.area DSEG    (PAG)
+                     0000   126 _PTA	=	0x0000
+                     0001   127 _PTB	=	0x0001
+                     0004   128 _DDRA	=	0x0004
+                     0005   129 _DDRB	=	0x0005
+                     000B   130 _PTAPUE	=	0x000b
+                     000C   131 _PTBPUE	=	0x000c
+                     001A   132 _KBSCR	=	0x001a
+                     001B   133 _KBIER	=	0x001b
+                     001D   134 _INTSCR	=	0x001d
+                     001E   135 _CONFIG2	=	0x001e
+                     001F   136 _CONFIG1	=	0x001f
+                     0020   137 _TSC	=	0x0020
+                     0021   138 _TCNTH	=	0x0021
+                     0022   139 _TCNTL	=	0x0022
+                     0021   140 _TCNT	=	0x0021
+                     0023   141 _TMODH	=	0x0023
+                     0024   142 _TMODL	=	0x0024
+                     0023   143 _TMOD	=	0x0023
+                     0025   144 _TSC0	=	0x0025
+                     0026   145 _TCH0H	=	0x0026
+                     0027   146 _TCH0L	=	0x0027
+                     0026   147 _TCH0	=	0x0026
+                     0028   148 _TSC1	=	0x0028
+                     0029   149 _TCH1H	=	0x0029
+                     002A   150 _TCH1L	=	0x002a
+                     0029   151 _TCH1	=	0x0029
+                     0036   152 _OSCSTAT	=	0x0036
+                     0038   153 _OSCTRIM	=	0x0038
+                     003C   154 _ADSCR	=	0x003c
+                     003E   155 _ADR	=	0x003e
+                     003F   156 _ADICLK	=	0x003f
+   0000                     157 _read_ADC_filter_sloc0_1_0:
+   0000                     158 	.ds 2
+   0002                     159 _read_ADC_filter_sloc1_1_0:
+   0002                     160 	.ds 4
+   0006                     161 _read_time_dial_sloc0_1_0:
+   0006                     162 	.ds 4
+   000A                     163 _write_time_sloc0_1_0:
+   000A                     164 	.ds 2
+   000C                     165 _write_time_sloc1_1_0:
+   000C                     166 	.ds 2
+                            167 ;--------------------------------------------------------
+                            168 ; overlayable items in ram 
+                            169 ;--------------------------------------------------------
+                            170 ;--------------------------------------------------------
+                            171 ; absolute ram data
+                            172 ;--------------------------------------------------------
+                            173 	.area IABS    (ABS)
+                            174 	.area IABS    (ABS)
+                            175 ;--------------------------------------------------------
+                            176 ; absolute external ram data
+                            177 ;--------------------------------------------------------
+                            178 	.area XABS    (ABS)
+                            179 ;--------------------------------------------------------
+                            180 ; external initialized ram data
+                            181 ;--------------------------------------------------------
+                            182 	.area XISEG
+                            183 ;--------------------------------------------------------
+                            184 ; extended address mode data
+                            185 ;--------------------------------------------------------
+                            186 	.area XSEG
+                     FE00   187 _BSR	=	0xfe00
+                     FE01   188 _SRSR	=	0xfe01
+                     FE02   189 _BRKAR	=	0xfe02
+                     FE03   190 _BFCF	=	0xfe03
+                     FE04   191 _INT1	=	0xfe04
+                     FE05   192 _INT2	=	0xfe05
+                     FE06   193 _INT3	=	0xfe06
+                     FE08   194 _FLCR	=	0xfe08
+                     FE09   195 _BRKH	=	0xfe09
+                     FE0A   196 _BRKL	=	0xfe0a
+                     FE09   197 _BRK	=	0xfe09
+                     FE0B   198 _BRKSCR	=	0xfe0b
+                     FE0C   199 _LVISR	=	0xfe0c
+                     FFBE   200 _FLBPR	=	0xffbe
+                     FFC0   201 _OSCTRIMVAL	=	0xffc0
+                     FFFF   202 _COPCTL	=	0xffff
+   0000                     203 _count::
+   0000                     204 	.ds 1
+   0001                     205 _n::
+   0001                     206 	.ds 1
+   0002                     207 _timer1::
+   0002                     208 	.ds 1
+   0003                     209 _timer2::
+   0003                     210 	.ds 2
+   0005                     211 _timer3::
+   0005                     212 	.ds 2
+   0007                     213 _sec::
+   0007                     214 	.ds 1
+   0008                     215 _min::
+   0008                     216 	.ds 2
+   000A                     217 _PV::
+   000A                     218 	.ds 2
+   000C                     219 _save_time::
+   000C                     220 	.ds 2
+   000E                     221 _set_time::
+   000E                     222 	.ds 2
+   0010                     223 _x1::
+   0010                     224 	.ds 1
+   0011                     225 _x2::
+   0011                     226 	.ds 1
+   0012                     227 _x3::
+   0012                     228 	.ds 1
+   0013                     229 _minute_pass::
+   0013                     230 	.ds 1
+                            231 ;--------------------------------------------------------
+                            232 ; global & static initialisations
+                            233 ;--------------------------------------------------------
+                            234 	.area HOME    (CODE)
+                            235 	.area GSINIT  (CODE)
+                            236 	.area GSFINAL (CODE)
+                            237 	.area GSINIT  (CODE)
+                            238 ;--------------------------------------------------------
+                            239 ; Home
+                            240 ;--------------------------------------------------------
+                            241 	.area HOME    (CODE)
+                            242 	.area HOME    (CODE)
+                            243 ;--------------------------------------------------------
+                            244 ; code
+                            245 ;--------------------------------------------------------
+                            246 	.area CSEG    (CODE)
+                            247 ;------------------------------------------------------------
+                            248 ;Allocation info for local variables in function 'disable_timer'
+                            249 ;------------------------------------------------------------
+                            250 ;timer.c:35: void disable_timer()
+                            251 ;	-----------------------------------------
+                            252 ;	 function disable_timer
+                            253 ;	-----------------------------------------
+                            254 ;	Register assignment is optimal.
+                            255 ;	Stack space usage: 0 bytes.
+   0005                     256 _disable_timer:
+                            257 ;timer.c:37: if(set_time <5) PTA &= ~0x8; // off timer
+   0005 C6r00r0F      [ 4]  258 	lda	(_set_time + 1)
+   0008 A0 05         [ 2]  259 	sub	#0x05
+   000A C6r00r0E      [ 4]  260 	lda	_set_time
+   000D A2 00         [ 2]  261 	sbc	#0x00
+   000F 24 02         [ 3]  262 	bcc	00103$
+   0011 17 00         [ 4]  263 	bclr	#3,*_PTA
+   0013                     264 00103$:
+                            265 ;timer.c:38: }
+   0013 81            [ 4]  266 	rts
+                            267 ;------------------------------------------------------------
+                            268 ;Allocation info for local variables in function 'minute_clock'
+                            269 ;------------------------------------------------------------
+                            270 ;timer.c:40: void minute_clock(){
+                            271 ;	-----------------------------------------
+                            272 ;	 function minute_clock
+                            273 ;	-----------------------------------------
+                            274 ;	Register assignment is optimal.
+                            275 ;	Stack space usage: 0 bytes.
+   0014                     276 _minute_clock:
+                            277 ;timer.c:41: timer2++;
+   0014 45r00r03      [ 3]  278 	ldhx	#_timer2
+   0017 6C 01         [ 4]  279 	inc	1,x
+   0019 26 01         [ 3]  280 	bne	00110$
+   001B 7C            [ 3]  281 	inc	,x
+   001C                     282 00110$:
+                            283 ;timer.c:42: if (timer2 > minute)
+   001C A6 20         [ 2]  284 	lda	#0x20
+   001E C0r00r04      [ 4]  285 	sub	(_timer2 + 1)
+   0021 A6 1C         [ 2]  286 	lda	#0x1c
+   0023 C2r00r03      [ 4]  287 	sbc	_timer2
+   0026 24 0B         [ 3]  288 	bcc	00103$
+                            289 ;timer.c:43: {timer2 = 0;
+   0028 4F            [ 1]  290 	clra
+   0029 C7r00r03      [ 4]  291 	sta	_timer2
+   002C C7r00r04      [ 4]  292 	sta	(_timer2 + 1)
+                            293 ;timer.c:44: minute_pass = 1;
+   002F 4C            [ 1]  294 	inca
+   0030 C7r00r13      [ 4]  295 	sta	_minute_pass
+   0033                     296 00103$:
+                            297 ;timer.c:46: }
+   0033 81            [ 4]  298 	rts
+                            299 ;------------------------------------------------------------
+                            300 ;Allocation info for local variables in function 'run_timer'
+                            301 ;------------------------------------------------------------
+                            302 ;timer.c:48: void run_timer(){
+                            303 ;	-----------------------------------------
+                            304 ;	 function run_timer
+                            305 ;	-----------------------------------------
+                            306 ;	Register assignment is optimal.
+                            307 ;	Stack space usage: 0 bytes.
+   0034                     308 _run_timer:
+                            309 ;timer.c:50: if (timer3 > 10)
+   0034 A6 0A         [ 2]  310 	lda	#0x0a
+   0036 C0r00r06      [ 4]  311 	sub	(_timer3 + 1)
+   0039 4F            [ 1]  312 	clra
+   003A C2r00r05      [ 4]  313 	sbc	_timer3
+   003D 24 21         [ 3]  314 	bcc	00104$
+                            315 ;timer.c:52: PTA |= 0x8; // output high relay
+   003F B6 00         [ 3]  316 	lda	*_PTA
+   0041 5F            [ 1]  317 	clrx
+   0042 AA 08         [ 2]  318 	ora	#0x08
+   0044 87            [ 2]  319 	psha
+   0045 86            [ 2]  320 	pula
+   0046 B7 00         [ 3]  321 	sta	*_PTA
+                            322 ;timer.c:53: if (minute_pass == 1)
+   0048 C6r00r13      [ 4]  323 	lda	_minute_pass
+   004B A1 01         [ 2]  324 	cmp	#0x01
+   004D 26 13         [ 3]  325 	bne	00106$
+                            326 ;timer.c:55: minute_pass = 0;
+   004F CFr00r13      [ 4]  327 	stx	_minute_pass
+                            328 ;timer.c:56: timer3--;
+   0052 45r00r05      [ 3]  329 	ldhx	#_timer3
+   0055 E6 01         [ 3]  330 	lda	1,x
+   0057 A0 01         [ 2]  331 	sub	#0x01
+   0059 E7 01         [ 3]  332 	sta	1,x
+   005B F6            [ 2]  333 	lda	,x
+   005C A2 00         [ 2]  334 	sbc	#0
+   005E F7            [ 2]  335 	sta	,x
+   005F 81            [ 4]  336 	rts
+   0060                     337 00104$:
+                            338 ;timer.c:62: PTA &= ~0x8; // off relay
+   0060 17 00         [ 4]  339 	bclr	#3,*_PTA
+   0062                     340 00106$:
+                            341 ;timer.c:65: }
+   0062 81            [ 4]  342 	rts
+                            343 ;------------------------------------------------------------
+                            344 ;Allocation info for local variables in function 'read_ADC'
+                            345 ;------------------------------------------------------------
+                            346 ;timer.c:68: char read_ADC()
+                            347 ;	-----------------------------------------
+                            348 ;	 function read_ADC
+                            349 ;	-----------------------------------------
+                            350 ;	Register assignment is optimal.
+                            351 ;	Stack space usage: 0 bytes.
+   0063                     352 _read_ADC:
+                            353 ;timer.c:70: ADSCR = 0; // read channel 0 one time
+   0063 6E 00 3C      [ 4]  354 	mov	#0x00,*_ADSCR
+                            355 ;timer.c:71: while(!(ADSCR&0x80))
+   0066                     356 00101$:
+   0066 B6 3C         [ 3]  357 	lda	*_ADSCR
+   0068 2A FC         [ 3]  358 	bpl     00101$
+                            359 ;timer.c:73: return ADR;
+   006A B6 3E         [ 3]  360 	lda	*_ADR
+                            361 ;timer.c:74: }
+   006C 81            [ 4]  362 	rts
+                            363 ;------------------------------------------------------------
+                            364 ;Allocation info for local variables in function 'read_ADC_filter'
+                            365 ;------------------------------------------------------------
+                            366 ;sloc0                     Allocated with name '_read_ADC_filter_sloc0_1_0'
+                            367 ;sloc1                     Allocated with name '_read_ADC_filter_sloc1_1_0'
+                            368 ;------------------------------------------------------------
+                            369 ;timer.c:77: long read_ADC_filter(){
+                            370 ;	-----------------------------------------
+                            371 ;	 function read_ADC_filter
+                            372 ;	-----------------------------------------
+                            373 ;	Register assignment is optimal.
+                            374 ;	Stack space usage: 0 bytes.
+   006D                     375 _read_ADC_filter:
+                            376 ;timer.c:78: PV = read_ADC();
+   006D CDr00r63      [ 5]  377 	jsr	_read_ADC
+   0070 97            [ 1]  378 	tax
+   0071 8C            [ 1]  379 	clrh
+                            380 ;timer.c:79: x3 = x2;
+   0072 C6r00r11      [ 4]  381 	lda	_x2
+   0075 C7r00r12      [ 4]  382 	sta	_x3
+                            383 ;timer.c:80: x2 = x1;
+   0078 C6r00r10      [ 4]  384 	lda	_x1
+   007B C7r00r11      [ 4]  385 	sta	_x2
+                            386 ;timer.c:81: x1 = PV;
+   007E CFr00r10      [ 4]  387 	stx	_x1
+                            388 ;timer.c:82: PV = (x1+x2+x3)/3;
+   0081 BF*01         [ 3]  389 	stx	*(_read_ADC_filter_sloc0_1_0 + 1)
+   0083 6E 00*00      [ 4]  390 	mov	#0x00,*_read_ADC_filter_sloc0_1_0
+   0086 C6r00r11      [ 4]  391 	lda	_x2
+   0089 5F            [ 1]  392 	clrx
+   008A BB*01         [ 3]  393 	add	*(_read_ADC_filter_sloc0_1_0 + 1)
+   008C B7*01         [ 3]  394 	sta	*(_read_ADC_filter_sloc0_1_0 + 1)
+   008E 9F            [ 1]  395 	txa
+   008F B9*00         [ 3]  396 	adc	*_read_ADC_filter_sloc0_1_0
+   0091 B7*00         [ 3]  397 	sta	*_read_ADC_filter_sloc0_1_0
+   0093 C6r00r12      [ 4]  398 	lda	_x3
+   0096 BB*01         [ 3]  399 	add	*(_read_ADC_filter_sloc0_1_0 + 1)
+   0098 87            [ 2]  400 	psha
+   0099 9F            [ 1]  401 	txa
+   009A B9*00         [ 3]  402 	adc	*_read_ADC_filter_sloc0_1_0
+   009C 97            [ 1]  403 	tax
+   009D 4F            [ 1]  404 	clra
+   009E C7r00r00      [ 4]  405 	sta	__divsint_PARM_2
+   00A1 A6 03         [ 2]  406 	lda	#0x03
+   00A3 C7r00r01      [ 4]  407 	sta	(__divsint_PARM_2 + 1)
+   00A6 86            [ 2]  408 	pula
+   00A7 CDr00r00      [ 5]  409 	jsr	__divsint
+   00AA C7r00r0B      [ 4]  410 	sta	(_PV + 1)
+   00AD CFr00r0A      [ 4]  411 	stx	_PV
+                            412 ;timer.c:83: return PV;
+   00B0 C6r00r0B      [ 4]  413 	lda	(_PV + 1)
+   00B3 B7*05         [ 3]  414 	sta	*(_read_ADC_filter_sloc1_1_0 + 3)
+   00B5 C6r00r0A      [ 4]  415 	lda	_PV
+   00B8 B7*04         [ 3]  416 	sta	*(_read_ADC_filter_sloc1_1_0 + 2)
+   00BA 6E 00*03      [ 4]  417 	mov	#0x00,*(_read_ADC_filter_sloc1_1_0 + 1)
+   00BD 6E 00*02      [ 4]  418 	mov	#0x00,*_read_ADC_filter_sloc1_1_0
+   00C0 4E*02*00      [ 5]  419 	mov	*_read_ADC_filter_sloc1_1_0,*___SDCC_hc08_ret3
+   00C3 4E*03*00      [ 5]  420 	mov	*(_read_ADC_filter_sloc1_1_0 + 1),*___SDCC_hc08_ret2
+   00C6 BE*04         [ 3]  421 	ldx	*(_read_ADC_filter_sloc1_1_0 + 2)
+   00C8 B6*05         [ 3]  422 	lda	*(_read_ADC_filter_sloc1_1_0 + 3)
+                            423 ;timer.c:84: }		 					 
+   00CA 81            [ 4]  424 	rts
+                            425 ;------------------------------------------------------------
+                            426 ;Allocation info for local variables in function 'read_time_dial'
+                            427 ;------------------------------------------------------------
+                            428 ;sloc0                     Allocated with name '_read_time_dial_sloc0_1_0'
+                            429 ;k                         Allocated with name '_read_time_dial_k_65536_10'
+                            430 ;------------------------------------------------------------
+                            431 ;timer.c:86: int read_time_dial(){ // from 0min to 300mins (0 to 5Hrs)
+                            432 ;	-----------------------------------------
+                            433 ;	 function read_time_dial
+                            434 ;	-----------------------------------------
+                            435 ;	Register assignment is optimal.
+                            436 ;	Stack space usage: 0 bytes.
+   00CB                     437 _read_time_dial:
+                            438 ;timer.c:88: k = read_ADC_filter()*300/255;
+   00CB CDr00r6D      [ 5]  439 	jsr	_read_ADC_filter
+   00CE C7r00r03      [ 4]  440 	sta	(__mullong_PARM_2 + 3)
+   00D1 CFr00r02      [ 4]  441 	stx	(__mullong_PARM_2 + 2)
+   00D4 B6*00         [ 3]  442 	lda	*___SDCC_hc08_ret2
+   00D6 C7r00r01      [ 4]  443 	sta	(__mullong_PARM_2 + 1)
+   00D9 B6*00         [ 3]  444 	lda	*___SDCC_hc08_ret3
+   00DB C7r00r00      [ 4]  445 	sta	__mullong_PARM_2
+   00DE 45r00r00      [ 3]  446 	ldhx	#__mullong_PARM_1
+   00E1 4F            [ 1]  447 	clra
+   00E2 F7            [ 2]  448 	sta	,x
+   00E3 E7 01         [ 3]  449 	sta	1,x
+   00E5 4C            [ 1]  450 	inca
+   00E6 E7 02         [ 3]  451 	sta	2,x
+   00E8 A6 2C         [ 2]  452 	lda	#0x2c
+   00EA E7 03         [ 3]  453 	sta	3,x
+   00EC CDr00r00      [ 5]  454 	jsr	__mullong
+   00EF C7r00r03      [ 4]  455 	sta	(__divslong_PARM_1 + 3)
+   00F2 CFr00r02      [ 4]  456 	stx	(__divslong_PARM_1 + 2)
+   00F5 B6*00         [ 3]  457 	lda	*___SDCC_hc08_ret2
+   00F7 C7r00r01      [ 4]  458 	sta	(__divslong_PARM_1 + 1)
+   00FA B6*00         [ 3]  459 	lda	*___SDCC_hc08_ret3
+   00FC C7r00r00      [ 4]  460 	sta	__divslong_PARM_1
+   00FF 45r00r00      [ 3]  461 	ldhx	#__divslong_PARM_2
+   0102 4F            [ 1]  462 	clra
+   0103 F7            [ 2]  463 	sta	,x
+   0104 E7 01         [ 3]  464 	sta	1,x
+   0106 E7 02         [ 3]  465 	sta	2,x
+   0108 4A            [ 1]  466 	deca
+   0109 E7 03         [ 3]  467 	sta	3,x
+                            468 ;timer.c:89: return k;
+   010B CDr00r00      [ 5]  469 	jsr	__divslong
+   010E B7*09         [ 3]  470 	sta	*(_read_time_dial_sloc0_1_0 + 3)
+   0110 BF*08         [ 3]  471 	stx	*(_read_time_dial_sloc0_1_0 + 2)
+   0112 4E*00*07      [ 5]  472 	mov	*___SDCC_hc08_ret2,*(_read_time_dial_sloc0_1_0 + 1)
+   0115 4E*00*06      [ 5]  473 	mov	*___SDCC_hc08_ret3,*_read_time_dial_sloc0_1_0
+   0118 B6*09         [ 3]  474 	lda	*(_read_time_dial_sloc0_1_0 + 3)
+   011A BE*08         [ 3]  475 	ldx	*(_read_time_dial_sloc0_1_0 + 2)
+                            476 ;timer.c:91: }
+   011C 81            [ 4]  477 	rts
+                            478 ;------------------------------------------------------------
+                            479 ;Allocation info for local variables in function 'write_time'
+                            480 ;------------------------------------------------------------
+                            481 ;sloc0                     Allocated with name '_write_time_sloc0_1_0'
+                            482 ;sloc1                     Allocated with name '_write_time_sloc1_1_0'
+                            483 ;------------------------------------------------------------
+                            484 ;timer.c:94: void write_time(){
+                            485 ;	-----------------------------------------
+                            486 ;	 function write_time
+                            487 ;	-----------------------------------------
+                            488 ;	Register assignment is optimal.
+                            489 ;	Stack space usage: 0 bytes.
+   011D                     490 _write_time:
+                            491 ;timer.c:95: set_time = read_time_dial();
+   011D CDr00rCB      [ 5]  492 	jsr	_read_time_dial
+   0120 B7*0B         [ 3]  493 	sta	*(_write_time_sloc0_1_0 + 1)
+   0122 BF*0A         [ 3]  494 	stx	*_write_time_sloc0_1_0
+   0124 B6*0A         [ 3]  495 	lda	*_write_time_sloc0_1_0
+   0126 C7r00r0E      [ 4]  496 	sta	_set_time
+   0129 B6*0B         [ 3]  497 	lda	*(_write_time_sloc0_1_0 + 1)
+   012B C7r00r0F      [ 4]  498 	sta	(_set_time + 1)
+                            499 ;timer.c:96: if(save_time<(set_time-10)||save_time>(set_time+10))
+   012E 55*0A         [ 4]  500 	ldhx	*_write_time_sloc0_1_0
+   0130 AF F6         [ 2]  501 	aix	#-10
+   0132 35*0C         [ 4]  502 	sthx	*_write_time_sloc1_1_0
+   0134 C6r00r0D      [ 4]  503 	lda	(_save_time + 1)
+   0137 B0*0D         [ 3]  504 	sub	*(_write_time_sloc1_1_0 + 1)
+   0139 C6r00r0C      [ 4]  505 	lda	_save_time
+   013C B2*0C         [ 3]  506 	sbc	*_write_time_sloc1_1_0
+   013E 25 0F         [ 3]  507 	bcs	00101$
+   0140 55*0A         [ 4]  508 	ldhx	*_write_time_sloc0_1_0
+   0142 AF 0A         [ 2]  509 	aix	#10
+   0144 9F            [ 1]  510 	txa
+   0145 C0r00r0D      [ 4]  511 	sub	(_save_time + 1)
+   0148 8B            [ 2]  512 	pshh
+   0149 86            [ 2]  513 	pula
+   014A C2r00r0C      [ 4]  514 	sbc	_save_time
+   014D 24 17         [ 3]  515 	bcc	00104$
+   014F                     516 00101$:
+                            517 ;timer.c:97: {save_time = set_time;
+   014F BE*0A         [ 3]  518 	ldx	*_write_time_sloc0_1_0
+   0151 B6*0B         [ 3]  519 	lda	*(_write_time_sloc0_1_0 + 1)
+   0153 CFr00r0C      [ 4]  520 	stx	_save_time
+   0156 C7r00r0D      [ 4]  521 	sta	(_save_time + 1)
+                            522 ;timer.c:98: timer3 = save_time; // reload new set time to timer3
+   0159 CFr00r05      [ 4]  523 	stx	_timer3
+   015C C7r00r06      [ 4]  524 	sta	(_timer3 + 1)
+                            525 ;timer.c:99: timer2 = 0; // reset minute clock
+   015F 4F            [ 1]  526 	clra
+   0160 C7r00r03      [ 4]  527 	sta	_timer2
+   0163 C7r00r04      [ 4]  528 	sta	(_timer2 + 1)
+   0166                     529 00104$:
+                            530 ;timer.c:101: }
+   0166 81            [ 4]  531 	rts
+                            532 ;------------------------------------------------------------
+                            533 ;Allocation info for local variables in function 'task_led'
+                            534 ;------------------------------------------------------------
+                            535 ;timer.c:103: void task_led()
+                            536 ;	-----------------------------------------
+                            537 ;	 function task_led
+                            538 ;	-----------------------------------------
+                            539 ;	Register assignment is optimal.
+                            540 ;	Stack space usage: 0 bytes.
+   0167                     541 _task_led:
+                            542 ;timer.c:105: if(++timer1>50)
+   0167 45r00r02      [ 3]  543 	ldhx	#_timer1
+   016A 7C            [ 3]  544 	inc	,x
+   016B C6r00r02      [ 4]  545 	lda	_timer1
+   016E A1 32         [ 2]  546 	cmp	#0x32
+   0170 23 11         [ 3]  547 	bls	00103$
+                            548 ;timer.c:107: timer1 = 0;
+   0172 4F            [ 1]  549 	clra
+   0173 C7r00r02      [ 4]  550 	sta	_timer1
+                            551 ;timer.c:108: PTA ^= 0x2; // toggle PA1
+   0176 B6 00         [ 3]  552 	lda	*_PTA
+   0178 5F            [ 1]  553 	clrx
+   0179 A8 02         [ 2]  554 	eor	#0x02
+   017B 87            [ 2]  555 	psha
+   017C 9F            [ 1]  556 	txa
+   017D A8 00         [ 2]  557 	eor	#0x00
+   017F 97            [ 1]  558 	tax
+   0180 86            [ 2]  559 	pula
+   0181 B7 00         [ 3]  560 	sta	*_PTA
+   0183                     561 00103$:
+                            562 ;timer.c:110: }	 
+   0183 81            [ 4]  563 	rts
+                            564 ;------------------------------------------------------------
+                            565 ;Allocation info for local variables in function 'main'
+                            566 ;------------------------------------------------------------
+                            567 ;timer.c:112: void main()
+                            568 ;	-----------------------------------------
+                            569 ;	 function main
+                            570 ;	-----------------------------------------
+                            571 ;	Register assignment is optimal.
+                            572 ;	Stack space usage: 0 bytes.
+   0184                     573 _main:
+                            574 ;timer.c:115: OSCTRIM = 0x81; // trim internal oscillator, SDCC 08, Motorola defined name
+   0184 6E 81 38      [ 4]  575 	mov	#0x81,*_OSCTRIM
+                            576 ;timer.c:117: count = n = 0;
+   0187 4F            [ 1]  577 	clra
+   0188 C7r00r01      [ 4]  578 	sta	_n
+   018B C7r00r00      [ 4]  579 	sta	_count
+                            580 ;timer.c:118: TMODH = 0x01;
+   018E 6E 01 23      [ 4]  581 	mov	#0x01,*_TMODH
+                            582 ;timer.c:119: TMODL = 0xf4;
+   0191 6E F4 24      [ 4]  583 	mov	#0xf4,*_TMODL
+                            584 ;timer.c:120: TSC = 0x46; // run timer 
+   0194 6E 46 20      [ 4]  585 	mov	#0x46,*_TSC
+                            586 ;timer.c:123: DDRA = 0xfe; // PA0 is ADC input, avoid warning of overflow by SDCC
+   0197 6E FE 04      [ 4]  587 	mov	#0xfe,*_DDRA
+                            588 ;timer.c:125: DDRB = 0xff;
+   019A 6E FF 05      [ 4]  589 	mov	#0xff,*_DDRB
+                            590 ;timer.c:126: PTAPUE = ~0x81; // osc2 pin is PTA4 I/O 
+   019D 6E 7E 0B      [ 4]  591 	mov	#0x7e,*_PTAPUE
+                            592 ;timer.c:129: ADICLK = 0x40; // ADC Input Clock Register = fbus/4, SDCC 08, Motorola defined name
+   01A0 6E 40 3F      [ 4]  593 	mov	#0x40,*_ADICLK
+                            594 ;timer.c:133: while(!(TSC&0x80))
+   01A3                     595 00101$:
+   01A3 B6 20         [ 3]  596 	lda	*_TSC
+   01A5 2A FC         [ 3]  597 	bpl     00101$
+                            598 ;timer.c:135: TSC &= ~0x80; // clear TOF
+   01A7 1F 20         [ 4]  599 	bclr	#7,*_TSC
+                            600 ;timer.c:137: task_led();
+   01A9 CDr01r67      [ 5]  601 	jsr	_task_led
+                            602 ;timer.c:138: write_time(); 
+   01AC CDr01r1D      [ 5]  603 	jsr	_write_time
+                            604 ;timer.c:139: minute_clock();
+   01AF CDr00r14      [ 5]  605 	jsr	_minute_clock
+                            606 ;timer.c:140: disable_timer();
+   01B2 CDr00r05      [ 5]  607 	jsr	_disable_timer
+                            608 ;timer.c:141: run_timer();
+   01B5 CDr00r34      [ 5]  609 	jsr	_run_timer
+                            610 ;timer.c:142: COPCTL = 0; // clear COP 	 
+   01B8 4F            [ 1]  611 	clra
+   01B9 C7 FF FF      [ 4]  612 	sta	_COPCTL
+   01BC 20 E5         [ 3]  613 	bra	00101$
+                            614 ;timer.c:144: }	  
+   01BE 81            [ 4]  615 	rts
+                            616 	.area CSEG    (CODE)
+                            617 	.area CONST   (CODE)
+                            618 	.area XINIT   (CODE)
+                            619 	.area CABS    (ABS,CODE)
