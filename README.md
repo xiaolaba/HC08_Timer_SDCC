@@ -6,7 +6,7 @@ My attempts to port to uses SDCC compile
 source code has been modified to work with SDCC  
 SDCC 3.8.0 tested, ok  
 SDCC 3.9.0 tested, ok  
-you may download SDCC ![here](https://sourceforge.net/projects/sdcc/)
+you may download SDCC here, https://sourceforge.net/projects/sdcc/
 
 
 
