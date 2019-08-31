@@ -6,11 +6,12 @@ My attempts to port to uses SDCC compile
 source code has been modified to work with SDCC 3.8.0
 
 
-~~~
+```
 //#include <io908QY4.H>   // original author was saying, it was used with ICC08  
 #include <mc68hc908qy.h>  // include file for SDCC  
+```  
 
-~~~
+```
 void main()
 {
  	 //OCSTRIM = 0x81; // trim internal oscillator
@@ -29,3 +30,5 @@ void main()
 
 	 //ADCLK = 0x40; // ADC clock= fbus/4, for ICC 08
    ADICLK = 0x40; // ADC Input Clock Register = fbus/4, SDCC 08, Motorola defined name
+```  
+
