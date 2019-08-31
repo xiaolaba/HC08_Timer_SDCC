@@ -3,12 +3,12 @@ The original code by author @ http://www.kswichit.com/hc08fan/hc08fan.html.
   
 My attempts to port to uses SDCC compile
 
-source code has been modified to work with SDCC  
 SDCC 3.8.0 tested, ok  
 SDCC 3.9.0 tested, ok  
 you may download SDCC here, https://sourceforge.net/projects/sdcc/
 
 
+source code has been modified to work with SDCC    
 
 include file
 ```
